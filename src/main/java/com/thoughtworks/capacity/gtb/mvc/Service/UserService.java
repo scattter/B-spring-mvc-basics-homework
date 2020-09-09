@@ -1,6 +1,7 @@
 package com.thoughtworks.capacity.gtb.mvc.Service;
 
 import com.thoughtworks.capacity.gtb.mvc.Component.User;
+import com.thoughtworks.capacity.gtb.mvc.Exception.UserNameAlreadyExistsException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,12 +25,18 @@ public class UserService {
         return isExit.get(0);
     }
 
-    public void register(Map<String, String> userInfo) throws Exception {
-        userList.add(User.builder()
+    public void register(User userInfo) throws UserNameAlreadyExistsException {
+        List<User> isExit = userList.stream().filter(it -> it.getUsername().equals(userInfo.getUsername()))
+                .collect(Collectors.toList());
+        if (!isExit.isEmpty()) {
+            throw new UserNameAlreadyExistsException("用户名重复");
+        }
+        User newUser = User.builder()
                 .id(userList.size() + 1)
-                .username(userInfo.get("username"))
-                .password(userInfo.get("password"))
-                .email(userInfo.get("email"))
-                .build());
+                .username(userInfo.getUsername())
+                .password(userInfo.getPassword())
+                .email(userInfo.getEmail())
+                .build();
+        userList.add(newUser);
     }
 }
