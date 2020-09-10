@@ -5,9 +5,7 @@ import com.thoughtworks.capacity.gtb.mvc.Exception.UserNameAlreadyExistsExceptio
 import com.thoughtworks.capacity.gtb.mvc.Exception.UserNameOrPasswordIsErrorException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,13 +18,11 @@ public class UserService {
     }
 
     public User login(String username, String password) throws UserNameOrPasswordIsErrorException {
-        List<User> isExit = userList.stream().filter(it -> it.getUsername().equals(username)
-                && it.getPassword().equals(password))
+        List<User> isExit = userList.stream().filter(it -> it.getUsername().equals(username) && it.getPassword().equals(password))
                 .collect(Collectors.toList());
-        if (isExit.isEmpty()) {
-            throw new UserNameOrPasswordIsErrorException("用户名或密码错误");
-        }
-        return isExit.get(0);
+        User user = isExit.isEmpty() ? null : isExit.get(0);
+        return Optional.ofNullable(user)
+                .orElseThrow(() -> new UserNameOrPasswordIsErrorException("用户名或密码错误"));
     }
 
     public void register(User userInfo) throws UserNameAlreadyExistsException {
@@ -35,12 +31,7 @@ public class UserService {
         if (!isExit.isEmpty()) {
             throw new UserNameAlreadyExistsException("用户名重复");
         }
-        User newUser = User.builder()
-                .id(userList.size() + 1)
-                .username(userInfo.getUsername())
-                .password(userInfo.getPassword())
-                .email(userInfo.getEmail())
-                .build();
-        userList.add(newUser);
+        userInfo.setId(userList.size() + 1);
+        userList.add(userInfo);
     }
 }

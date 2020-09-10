@@ -1,4 +1,4 @@
-package com.thoughtworks.capacity.gtb.mvc;
+package com.thoughtworks.capacity.gtb.mvc.Exception;
 
 import com.thoughtworks.capacity.gtb.mvc.Exception.ErrorResult;
 import com.thoughtworks.capacity.gtb.mvc.Exception.UserNameAlreadyExistsException;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.Objects;
 import java.util.Set;
 
 @ControllerAdvice
@@ -19,19 +20,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResult> handle(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldError().getDefaultMessage();
-        ErrorResult errorResult = new ErrorResult(400,message);
+        ErrorResult errorResult = new ErrorResult(HttpStatus.BAD_REQUEST.value(), message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
     }
 
-    @ExceptionHandler(UserNameAlreadyExistsException.class)
-    public ResponseEntity<ErrorResult> handle(UserNameAlreadyExistsException ex) {
-        ErrorResult errorResult = new ErrorResult(400,ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
-    }
-
-    @ExceptionHandler(UserNameOrPasswordIsErrorException.class)
-    public ResponseEntity<ErrorResult> handle(UserNameOrPasswordIsErrorException ex) {
-        ErrorResult errorResult = new ErrorResult(400,ex.getMessage());
+    @ExceptionHandler({UserNameAlreadyExistsException.class,
+            UserNameOrPasswordIsErrorException.class})
+    public ResponseEntity<ErrorResult> handle(RuntimeException ex) {
+        ErrorResult errorResult = new ErrorResult(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
     }
 
@@ -43,7 +39,7 @@ public class GlobalExceptionHandler {
             message = constraint.getMessage();
             break;
         }
-        ErrorResult errorResult = new ErrorResult(400,message);
+        ErrorResult errorResult = new ErrorResult(HttpStatus.BAD_REQUEST.value(), message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
     }
 }

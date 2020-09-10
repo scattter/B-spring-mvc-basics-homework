@@ -21,9 +21,9 @@ public class UserApi {
         this.userService = userService;
     }
 
-    final String NAME_PATTERN = "^[0-9a-zA-Z_]{1,}$";
-    final String NAME_MESSAGE = "用户名不合法,只能由字母、数字或下划线组成";
-    final String PWD_MESSAGE = "密码不合法,长度5-12位";
+    final String NAME_PATTERN = "^[0-9a-zA-Z_]{3,10}$";
+    final String NAME_MESSAGE = "用户名不合法";
+    final String PWD_MESSAGE = "密码不合法";
 
 
     @GetMapping("/login")
@@ -33,7 +33,7 @@ public class UserApi {
     }
 
     @PostMapping("/register")
-    public void register(@RequestBody @Valid User userInfo) throws Exception {
+    public void register(@RequestBody @Valid User userInfo) {
         this.userService.register(userInfo);
     }
 
